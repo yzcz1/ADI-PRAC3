@@ -37,6 +37,20 @@ const router = createRouter({
       name: 'about-us',
       component: () => import('@/views/AboutUsView.vue'),
     },
+    {
+      path: '/user-data',
+      name: 'user-data',
+      component: () => import('@/views/UserDataView.vue'),
+      beforeEnter: (to, from, next) => {
+        const authStore = useAuthStore();
+        if (!authStore.isAuthenticated()) {
+          next({ name: 'login-register' });
+        } else {
+          next();
+        }
+      },
+    },
+    
     
   ],
 });

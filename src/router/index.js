@@ -32,6 +32,12 @@ const router = createRouter({
       name: 'contact',
       component: ContactView, // Nueva ruta para contacto
     },
+    {
+      path: '/about-us',
+      name: 'about-us',
+      component: () => import('@/views/AboutUsView.vue'),
+    },
+    
   ],
 });
 

@@ -14,7 +14,10 @@
           <li>
             <router-link to="/contact" class="navbar-link">Contacto</router-link>
           </li>
-          <li><a href="#">Sobre Nosotros</a></li>
+          <li>
+            <router-link to="/about-us" class="navbar-link">Sobre Nosotros</router-link>
+          </li>
+
           <li><a href="#">Nuestros Productos</a></li>
           <li><a href="#">Mis Datos</a></li>
           <li><a href="#"><i class="fas fa-shopping-cart"></i></a></li>

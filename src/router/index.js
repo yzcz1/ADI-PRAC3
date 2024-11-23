@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginRegisterView from '@/views/LoginRegisterView.vue';
 import WelcomeView from '@/views/WelcomeView.vue';
-import ContactView from '@/views/ContactView.vue'; // Nueva vista de contacto
+import ContactView from '@/views/ContactView.vue';
+import ForgotPasswordView from '@/views/ForgotPasswordView.vue'; // Importación de la nueva vista
 import { useAuthStore } from '@/stores/auth';
 
 const router = createRouter({
@@ -30,7 +31,7 @@ const router = createRouter({
     {
       path: '/contact',
       name: 'contact',
-      component: ContactView, // Nueva ruta para contacto
+      component: ContactView,
     },
     {
       path: '/about-us',
@@ -50,8 +51,11 @@ const router = createRouter({
         }
       },
     },
-    
-    
+    {
+      path: '/forgot-password', // Nueva ruta para ForgotPasswordView
+      name: 'forgot-password',
+      component: ForgotPasswordView,
+    },
   ],
 });
 

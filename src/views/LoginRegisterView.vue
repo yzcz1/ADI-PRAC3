@@ -1,8 +1,11 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useRouter, useRoute } from 'vue-router';
 
 const authStore = useAuthStore();
+const router = useRouter();
+const route = useRoute();
 
 const isLoginMode = ref(true);
 const email = ref('');
@@ -18,6 +21,13 @@ const messageType = ref(''); // Puede ser 'success' o 'danger'
 // Clases reactivas para el efecto de temblor
 const shakeClass = ref(false);
 const shakeButtonClass = ref(false);
+
+// Manejo del mensaje de éxito desde "Forgot Password"
+if (route.query.success === 'true') {
+  message.value = 'Se ha enviado correctamente el correo para resetear la contraseña.';
+  messageType.value = 'success';
+  setTimeout(() => clearMessage(), 5000);
+}
 
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value;
@@ -40,7 +50,7 @@ const clearMessage = () => {
 
 const handleSubmit = async () => {
   try {
-    if (password.value.length < 6) {
+    if (password.value.length < 6 && isLoginMode.value) {
       triggerShake(); // Efecto de temblor
       showMessage('La contraseña es demasiado corta. Debe tener al menos 6 caracteres.', 'danger');
       clearFields();
@@ -48,21 +58,19 @@ const handleSubmit = async () => {
     }
 
     if (isLoginMode.value) {
-      // Lógica de inicio de sesión
       await authStore.login(email.value, password.value);
       showMessage('Inicio de sesión exitoso.', 'success');
       setTimeout(() => (window.location.href = '/welcome'), 1500);
     } else {
-      // Lógica de registro
       await authStore.register(email.value, password.value, nombre.value, apellidos.value, edad.value);
       showMessage('Te has registrado exitosamente.', 'success');
       isLoginMode.value = true;
       clearFields();
     }
   } catch (error) {
-    triggerShake(); // Efecto de temblor
+    triggerShake();
     showMessage(getFirebaseErrorMessage(error.code), 'danger');
-    clearFields(); // Limpia los campos tras un error
+    clearFields();
   }
 };
 
@@ -138,6 +146,9 @@ const showMessage = (msg, type) => {
       <p>
         {{ isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}
         <a @click="toggleMode" class="toggle-link">{{ isLoginMode ? 'Regístrate' : 'Inicia sesión' }}</a>
+      </p>
+      <p v-if="isLoginMode">
+        <router-link to="/forgot-password" class="forgot-link">¿Olvidaste tu contraseña?</router-link>
       </p>
     </div>
   </div>
@@ -230,7 +241,17 @@ button:hover {
   background-color: #45a049;
 }
 
-/* Estilo del enlace interactivo (Regístrate/Inicia sesión) */
+.forgot-link {
+  display: block;
+  margin-top: 1rem;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
 .toggle-link {
   color: #4caf50;
   font-weight: bold;
@@ -250,18 +271,15 @@ button:hover {
   font-size: 0.9rem;
   padding: 0.5rem;
   border-radius: 4px;
-  text-align: left;
 }
 
 .form-message-success {
   background-color: #d4edda;
   color: #155724;
-  border: 1px solid #c3e6cb;
 }
 
 .form-message-danger {
   background-color: #f8d7da;
   color: #721c24;
-  border: 1px solid #f5c6cb;
 }
 </style>

@@ -11,9 +11,18 @@ const nombre = ref('');
 const apellidos = ref('');
 const edad = ref('');
 
+// Mensajes reactivos
+const message = ref('');
+const messageType = ref(''); // Puede ser 'success' o 'danger'
+
+// Clases reactivas para el efecto de temblor
+const shakeClass = ref(false);
+const shakeButtonClass = ref(false);
+
 const toggleMode = () => {
   isLoginMode.value = !isLoginMode.value;
   clearFields();
+  clearMessage(); // Limpia mensajes al cambiar entre modos
 };
 
 const clearFields = () => {
@@ -24,26 +33,72 @@ const clearFields = () => {
   edad.value = '';
 };
 
+const clearMessage = () => {
+  message.value = '';
+  messageType.value = '';
+};
+
 const handleSubmit = async () => {
   try {
+    if (password.value.length < 6) {
+      triggerShake(); // Efecto de temblor
+      message.value = 'La contraseña es demasiado corta. Debe tener al menos 6 caracteres.';
+      messageType.value = 'danger';
+      return; // Salir antes de intentar registrar o iniciar sesión
+    }
+
     if (isLoginMode.value) {
+      // Lógica de inicio de sesión
       await authStore.login(email.value, password.value);
-      window.location.href = '/welcome';
+      message.value = 'Inicio de sesión exitoso.';
+      messageType.value = 'success';
+      setTimeout(() => (window.location.href = '/welcome'), 1500);
     } else {
+      // Lógica de registro
       await authStore.register(email.value, password.value, nombre.value, apellidos.value, edad.value);
-      alert('Usuario registrado con éxito. Por favor, inicia sesión.');
+      message.value = 'Te has registrado exitosamente.';
+      messageType.value = 'success';
       isLoginMode.value = true;
       clearFields();
     }
   } catch (error) {
-    alert('Error: ' + error.message);
+    triggerShake(); // Efecto de temblor
+    // Manejo de errores de Firebase
+    message.value = getFirebaseErrorMessage(error.code);
+    messageType.value = 'danger';
   }
+};
+
+// Función para manejar errores de Firebase
+const getFirebaseErrorMessage = (errorCode) => {
+  switch (errorCode) {
+    case 'auth/email-already-in-use':
+      return 'El correo electrónico ya está en uso.';
+    case 'auth/invalid-email':
+      return 'Correo electrónico no válido.';
+    case 'auth/user-not-found':
+      return 'Usuario no encontrado.';
+    case 'auth/wrong-password':
+      return 'Contraseña incorrecta.';
+    default:
+      return 'Credenciales incorrectas.';
+  }
+};
+
+// Función para disparar el efecto de temblor
+const triggerShake = () => {
+  shakeClass.value = true;
+  shakeButtonClass.value = true;
+  setTimeout(() => {
+    shakeClass.value = false;
+    shakeButtonClass.value = false;
+  }, 500); // Duración del efecto de temblor
 };
 </script>
 
 <template>
   <div class="background">
-    <div class="auth-container">
+    <div :class="['auth-container', { shake: shakeClass }]">
       <h1>{{ isLoginMode ? 'Iniciar Sesión' : 'Registro' }}</h1>
       <form @submit.prevent="handleSubmit" class="auth-form">
         <div>
@@ -62,7 +117,15 @@ const handleSubmit = async () => {
           <label for="edad">Edad</label>
           <input id="edad" v-model="edad" type="number" required />
         </div>
-        <button type="submit">{{ isLoginMode ? 'Iniciar Sesión' : 'Registrarse' }}</button>
+        <!-- Mensaje dinámico, depende del modo -->
+        <div
+          v-if="message"
+          :class="['form-message', `form-message-${messageType}`]"
+          :style="{ marginTop: isLoginMode || messageType === 'danger' ? '0.5rem' : '1rem' }"
+        >
+          {{ message }}
+        </div>
+        <button :class="{ shake: shakeButtonClass }" type="submit">{{ isLoginMode ? 'Iniciar Sesión' : 'Registrarse' }}</button>
       </form>
       <p>
         {{ isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}
@@ -106,6 +169,31 @@ html, body {
   background-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
   text-align: center;
+  transition: transform 0.2s ease;
+}
+
+/* Efecto de temblor */
+.auth-container.shake,
+button.shake {
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 /* Formularios */
@@ -146,5 +234,28 @@ button:hover {
 .toggle-link:hover {
   color: #45a049;
   text-decoration: underline;
+}
+
+/* Mensajes dentro del formulario */
+.form-message {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-align: left;
+}
+
+/* Mensaje de éxito */
+.form-message-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Mensaje de error */
+.form-message-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 </style>

@@ -1,0 +1,76 @@
+<template>
+    <nav class="navbar">
+      <div class="navbar-container">
+        <!-- Logo o Nombre -->
+        <div class="navbar-logo">TrendyShop</div>
+  
+        <!-- Elementos del NavBar -->
+        <ul class="navbar-links">
+          <li><a href="#">Acerca de</a></li>
+          <li><a href="#">Sobre Nosotros</a></li>
+          <li><a href="#">Nuestros Productos</a></li>
+          <li><a href="#">Mis Datos</a></li>
+          <li><a href="#"><i class="fas fa-shopping-cart"></i></a></li>
+          <li><a href="#" @click.prevent="$emit('logout')">Cerrar Sesión</a></li>
+        </ul>
+      </div>
+    </nav>
+  </template>
+  
+  <style scoped>
+  /* Estilos del NavBar */
+  .navbar {
+    background-color: #333; /* Color de fondo */
+    color: white;
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; /* Cubre todo el ancho de la pantalla */
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+  }
+  
+  .navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+  }
+  
+  .navbar-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .navbar-links {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar-links li {
+    display: inline-block;
+  }
+  
+  .navbar-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+  }
+  
+  .navbar-links a:hover {
+    color: #ffd700; /* Color de hover */
+  }
+  
+  /* Iconos del carrito */
+  .navbar-links i {
+    font-size: 1.2rem;
+  }
+  </style>
+  

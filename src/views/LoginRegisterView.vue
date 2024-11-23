@@ -42,30 +42,27 @@ const handleSubmit = async () => {
   try {
     if (password.value.length < 6) {
       triggerShake(); // Efecto de temblor
-      message.value = 'La contraseña es demasiado corta. Debe tener al menos 6 caracteres.';
-      messageType.value = 'danger';
+      showMessage('La contraseña es demasiado corta. Debe tener al menos 6 caracteres.', 'danger');
+      clearFields();
       return; // Salir antes de intentar registrar o iniciar sesión
     }
 
     if (isLoginMode.value) {
       // Lógica de inicio de sesión
       await authStore.login(email.value, password.value);
-      message.value = 'Inicio de sesión exitoso.';
-      messageType.value = 'success';
+      showMessage('Inicio de sesión exitoso.', 'success');
       setTimeout(() => (window.location.href = '/welcome'), 1500);
     } else {
       // Lógica de registro
       await authStore.register(email.value, password.value, nombre.value, apellidos.value, edad.value);
-      message.value = 'Te has registrado exitosamente.';
-      messageType.value = 'success';
+      showMessage('Te has registrado exitosamente.', 'success');
       isLoginMode.value = true;
       clearFields();
     }
   } catch (error) {
     triggerShake(); // Efecto de temblor
-    // Manejo de errores de Firebase
-    message.value = getFirebaseErrorMessage(error.code);
-    messageType.value = 'danger';
+    showMessage(getFirebaseErrorMessage(error.code), 'danger');
+    clearFields(); // Limpia los campos tras un error
   }
 };
 
@@ -93,6 +90,15 @@ const triggerShake = () => {
     shakeClass.value = false;
     shakeButtonClass.value = false;
   }, 500); // Duración del efecto de temblor
+};
+
+// Función para mostrar mensajes con auto-limpieza
+const showMessage = (msg, type) => {
+  message.value = msg;
+  messageType.value = type;
+
+  // Elimina el mensaje después de 5 segundos
+  setTimeout(clearMessage, 5000);
 };
 </script>
 
@@ -125,7 +131,9 @@ const triggerShake = () => {
         >
           {{ message }}
         </div>
-        <button :class="{ shake: shakeButtonClass }" type="submit">{{ isLoginMode ? 'Iniciar Sesión' : 'Registrarse' }}</button>
+        <button :class="{ shake: shakeButtonClass }" type="submit">
+          {{ isLoginMode ? 'Iniciar Sesión' : 'Registrarse' }}
+        </button>
       </form>
       <p>
         {{ isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}
@@ -140,10 +148,10 @@ const triggerShake = () => {
 html, body {
   margin: 0;
   padding: 0;
-  width: 100%; /* Asegura que ocupa todo el ancho */
-  height: 100%; /* Asegura que ocupa todo el alto */
+  width: 100%;
+  height: 100%;
   font-family: 'Arial', sans-serif;
-  overflow: hidden; /* Elimina cualquier barra de desplazamiento innecesaria */
+  overflow: hidden;
 }
 
 /* Fondo general */
@@ -151,10 +159,10 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw; /* Cubre todo el ancho visible */
-  height: 100vh; /* Cubre todo el alto visible */
-  background-color: #5cabef; /* Azul claro */
-  position: fixed; /* Fija el fondo para evitar que se desplace */
+  width: 100vw;
+  height: 100vh;
+  background-color: #5cabef;
+  position: fixed;
   top: 0;
   left: 0;
 }
@@ -167,7 +175,7 @@ html, body {
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: transform 0.2s ease;
 }
@@ -245,14 +253,12 @@ button:hover {
   text-align: left;
 }
 
-/* Mensaje de éxito */
 .form-message-success {
   background-color: #d4edda;
   color: #155724;
   border: 1px solid #c3e6cb;
 }
 
-/* Mensaje de error */
 .form-message-danger {
   background-color: #f8d7da;
   color: #721c24;

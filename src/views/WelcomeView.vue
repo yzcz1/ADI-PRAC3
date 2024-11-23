@@ -23,29 +23,38 @@ const images = ref([
 
 const currentSlide = ref(0);
 
-// Función para ir al siguiente slide
 const nextSlide = () => {
   currentSlide.value = (currentSlide.value + 1) % images.value.length;
 };
 
-// Función para ir al slide anterior
 const prevSlide = () => {
-  currentSlide.value =
-    (currentSlide.value - 1 + images.value.length) % images.value.length;
+  currentSlide.value = (currentSlide.value - 1 + images.value.length) % images.value.length;
 };
 
-// Función para ir a un slide específico
 const goToSlide = (index) => {
   currentSlide.value = index;
 };
+
+// Lista de imágenes de productos
+const productImages = ref([
+  new URL('@/assets/images/product1.jpg', import.meta.url).href,
+  new URL('@/assets/images/product2.jpg', import.meta.url).href,
+  new URL('@/assets/images/product3.jpg', import.meta.url).href,
+]);
+
+// Lista de imágenes para "Descubre más"
+const discoverImages = ref([
+  new URL('@/assets/images/product4.jpg', import.meta.url).href,
+  new URL('@/assets/images/product5.jpg', import.meta.url).href,
+  new URL('@/assets/images/product6.jpg', import.meta.url).href,
+]);
 </script>
 
 <template>
   <div class="welcome-background">
-    <!-- NavBar -->
-    <NavBar @logout="logout" />
+    <!-- Usa NavBar con el email del usuario -->
+    <NavBar :username="authStore.user?.email" @logout="logout" />
 
-    <!-- Contenido principal -->
     <div class="welcome-container">
       <h1>Bienvenido a TrendyShop!</h1>
 
@@ -61,13 +70,11 @@ const goToSlide = (index) => {
           />
         </div>
 
-        <!-- Controles del carrusel -->
         <div class="carousel-controls">
           <button @click="prevSlide">&lt;</button>
           <button @click="nextSlide">&gt;</button>
         </div>
 
-        <!-- Indicadores -->
         <div class="carousel-indicators">
           <span
             v-for="(image, index) in images"
@@ -77,44 +84,84 @@ const goToSlide = (index) => {
           ></span>
         </div>
       </div>
+
+      <!-- Nuevo título -->
+      <h2 class="section-title">Lo mejor y más nuevo</h2>
+
+      <!-- Imágenes de productos -->
+      <div class="product-row">
+        <img
+          v-for="(product, index) in productImages"
+          :key="'product-' + index"
+          :src="product"
+          :alt="'Producto ' + (index + 1)"
+          class="product-image"
+        />
+      </div>
+
+      <!-- Descubre más título -->
+      <h2 class="section-title">Descubre más</h2>
+
+      <!-- Imágenes de Descubre más -->
+      <div class="product-row">
+        <img
+          v-for="(discover, index) in discoverImages"
+          :key="'discover-' + index"
+          :src="discover"
+          :alt="'Descubre ' + (index + 1)"
+          class="product-image"
+        />
+      </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-logo">TrendyShop</div>
+        <div class="footer-links">
+          <a href="#">Política de Privacidad</a>
+          <a href="#">Términos y Condiciones</a>
+          <a href="#">Contáctanos</a>
+        </div>
+        <div class="footer-copy">
+          © 2024 TrendyShop. Todos los derechos reservados.
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <style scoped>
-/* Fondo principal de la vista */
 .welcome-background {
-  min-height: 100vh; /* Ocupa todo el alto de la pantalla */
-  background-color: #ffffff; /* Fondo blanco */
+  min-height: 100vh;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* Contenedor principal de bienvenida */
 .welcome-container {
   text-align: center;
-  margin-top: 6rem; /* Espacio para no superponer al navbar */
+  margin-top: 6rem;
   padding: 1rem;
 }
 
 h1 {
   font-size: 2.5rem;
   font-weight: bold;
-  color: #333; /* Color del texto */
+  color: #333;
 }
 
-/* Estilo del carrusel */
+/* Carrusel */
 .carousel {
   position: relative;
   max-width: 800px;
   margin: 2rem auto;
   overflow: hidden;
-  border-radius: 8px; /* Bordes redondeados */
+  border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Imágenes del carrusel */
 .carousel-images img {
   width: 100%;
   display: none;
@@ -125,7 +172,6 @@ h1 {
   display: block;
 }
 
-/* Controles del carrusel */
 .carousel-controls {
   position: absolute;
   top: 50%;
@@ -149,7 +195,6 @@ h1 {
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Indicadores del carrusel */
 .carousel-indicators {
   position: absolute;
   bottom: 10px;
@@ -170,5 +215,75 @@ h1 {
 
 .carousel-indicators span.active {
   background-color: white;
+}
+
+/* Título de la sección */
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Fila de productos */
+.product-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem; /* Espaciado entre imágenes */
+}
+
+.product-image {
+  width: 250px; /* Ajusta el tamaño de las imágenes */
+  height: 200px; /* Ajusta la altura para mantener uniformidad */
+  object-fit: cover; /* Ajusta la imagen sin distorsionarla */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Footer */
+.footer {
+  background-color: #333;
+  color: white;
+  padding: 2rem 1rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.footer-links {
+  margin-bottom: 1rem;
+}
+
+.footer-links a {
+  color: white;
+  text-decoration: none;
+  margin: 0 1rem;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #ffd700; /* Color dorado en hover */
+}
+
+.footer-copy {
+  font-size: 0.8rem;
 }
 </style>

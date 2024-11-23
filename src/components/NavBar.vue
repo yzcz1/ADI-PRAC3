@@ -6,16 +6,39 @@
   
         <!-- Elementos del NavBar -->
         <ul class="navbar-links">
-          <li><a href="#">Acerca de</a></li>
+          <!-- Link Welcome -->
+          <li>
+            <router-link to="/welcome" class="navbar-link">Welcome</router-link>
+          </li>
+          <!-- Link Contacto -->
+          <li>
+            <router-link to="/contact" class="navbar-link">Contacto</router-link>
+          </li>
           <li><a href="#">Sobre Nosotros</a></li>
           <li><a href="#">Nuestros Productos</a></li>
           <li><a href="#">Mis Datos</a></li>
           <li><a href="#"><i class="fas fa-shopping-cart"></i></a></li>
-          <li><a href="#" @click.prevent="$emit('logout')">Cerrar Sesión</a></li>
+          <!-- Nombre del usuario -->
+          <li v-if="username" class="navbar-username">
+            <span>Hola, {{ username }}</span>
+          </li>
+          <li>
+            <a href="#" @click.prevent="$emit('logout')">Cerrar Sesión</a>
+          </li>
         </ul>
       </div>
     </nav>
   </template>
+  
+  <script setup>
+  defineProps({
+    username: {
+      type: String,
+      required: false,
+      default: '',
+    },
+  });
+  </script>
   
   <style scoped>
   /* Estilos del NavBar */
@@ -57,20 +80,23 @@
     display: inline-block;
   }
   
-  .navbar-links a {
+  .navbar-links a,
+  .navbar-link {
     color: white;
     text-decoration: none;
     font-size: 1rem;
     transition: color 0.3s ease;
   }
   
-  .navbar-links a:hover {
+  .navbar-links a:hover,
+  .navbar-link:hover {
     color: #ffd700; /* Color de hover */
   }
   
-  /* Iconos del carrito */
-  .navbar-links i {
-    font-size: 1.2rem;
+  .navbar-username span {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ffd700;
   }
   </style>
   

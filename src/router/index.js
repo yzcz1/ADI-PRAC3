@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginRegisterView from '@/views/LoginRegisterView.vue';
 import WelcomeView from '@/views/WelcomeView.vue';
+import ContactView from '@/views/ContactView.vue'; // Nueva vista de contacto
 import { useAuthStore } from '@/stores/auth';
 
 const router = createRouter({
@@ -25,6 +26,11 @@ const router = createRouter({
           next();
         }
       },
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: ContactView, // Nueva ruta para contacto
     },
   ],
 });

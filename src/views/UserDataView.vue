@@ -93,17 +93,18 @@ onMounted(async () => {
 }
 
 .user-data-container {
-  max-width: 800px;
+  max-width: 1000px; /* Ampliamos el ancho máximo */
+  width: 95%; /* Ocupa el 95% del ancho de la pantalla */
   background-color: white;
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: 12px; /* Bordes más redondeados */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
   margin-top: 2rem;
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
   color: #333;
   margin-bottom: 1.5rem;
@@ -114,31 +115,58 @@ h1 {
   color: #666;
 }
 
+/* Tabla de usuario */
 .user-data-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .user-data-table th,
 .user-data-table td {
-  padding: 0.8rem;
+  padding: 1rem;
   text-align: left;
-  border: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
 }
 
 .user-data-table th {
   background-color: #333;
   color: white;
   font-weight: bold;
+  text-align: center;
 }
 
 .user-data-table td {
   background-color: #f9f9f9;
   color: #333;
+  text-align: center;
+}
+
+.user-data-table tr:last-child td {
+  border-bottom: none; /* Elimina la línea inferior del último elemento */
 }
 
 .user-data-table tr:hover td {
   background-color: #f1f1f1;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .user-data-container {
+    width: 100%;
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .user-data-table th,
+  .user-data-table td {
+    padding: 0.8rem;
+  }
 }
 </style>

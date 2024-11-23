@@ -161,7 +161,7 @@ html, body {
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background-color: #5cabef;
+  background-color: #91c7f6;
   position: fixed;
   top: 0;
   left: 0;

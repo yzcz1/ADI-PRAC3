@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginRegisterView from '@/views/LoginRegisterView.vue';
 import WelcomeView from '@/views/WelcomeView.vue';
 import ContactView from '@/views/ContactView.vue';
-import ForgotPasswordView from '@/views/ForgotPasswordView.vue'; // Importación de la nueva vista
+import ForgotPasswordView from '@/views/ForgotPasswordView.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const router = createRouter({
@@ -52,9 +52,25 @@ const router = createRouter({
       },
     },
     {
-      path: '/forgot-password', // Nueva ruta para ForgotPasswordView
+      path: '/forgot-password',
       name: 'forgot-password',
       component: ForgotPasswordView,
+    },
+    {
+      path: '/create-product',
+      name: 'create-product',
+      component: () => import('@/views/CreateProductView.vue'), // Nueva vista para la creación de productos
+      beforeEnter: (to, from, next) => {
+        const authStore = useAuthStore();
+        if (!authStore.isAuthenticated()) {
+          next({ name: 'login-register' });
+        } else if (!authStore.user?.isAdmin) {
+          console.log('Acceso denegado. Solo los administradores pueden crear productos.');
+          next({ name: 'welcome' });
+        } else {
+          next();
+        }
+      },
     },
   ],
 });

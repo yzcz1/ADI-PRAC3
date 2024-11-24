@@ -6,7 +6,8 @@ import {
     signOut, 
     sendPasswordResetEmail, 
     setDoc, 
-    doc 
+    doc, 
+    getDoc // Importa getDoc para leer datos de Firestore
 } from '@/config/firebase'; // Alias para la configuración de Firebase
 
 /**
@@ -44,18 +45,40 @@ async function registerUser(email, password, nombre, apellidos, edad) {
  * Iniciar sesión con email y contraseña.
  * @param {string} email
  * @param {string} password
- * @returns {Promise<Object>} El usuario autenticado.
+ * @returns {Promise<Object>} El usuario autenticado con datos adicionales.
  */
 async function loginUser(email, password) {
     try {
+        // Autentica al usuario con Firebase Authentication
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log('Inicio de sesión exitoso.');
-        return userCredential.user;
+        const user = userCredential.user;
+
+        // Verifica que se obtuvo el UID correctamente
+        console.log('UID del usuario autenticado:', user.uid);
+
+        // Obtiene datos adicionales del usuario desde Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+            throw new Error('El usuario no tiene datos en Firestore.');
+        }
+
+        // Combina los datos de autenticación con los datos adicionales de Firestore
+        const userData = {
+            uid: user.uid,
+            email: user.email,
+            ...userDoc.data(), // Incluye datos como nombre, apellidos, rol, etc.
+        };
+
+        console.log('Datos completos del usuario:', userData); // Depuración
+        return userData; // Devuelve los datos completos del usuario
     } catch (error) {
         console.error('Error al iniciar sesión:', error.message);
         throw error;
     }
 }
+
 
 /**
  * Cerrar sesión del usuario actual.

@@ -11,6 +11,9 @@ const isLoading = ref(false); // Estado de carga
 const hasMorePages = ref(true); // Indica si hay más páginas hacia adelante
 const pageSnapshots = ref([]); // Array que almacena las referencias a cada página
 
+const selectedProduct = ref(null); // Producto seleccionado para ver detalles
+const showDetails = ref(false); // Estado para mostrar detalles del producto
+
 const itemsPerPage = 6; // Número de productos por página
 
 // Función para cargar productos
@@ -43,6 +46,18 @@ const loadProductos = async (pagina) => {
   } finally {
     isLoading.value = false;
   }
+};
+
+// Función para mostrar detalles de un producto
+const viewDetails = (producto) => {
+  selectedProduct.value = producto; // Guardar el producto seleccionado
+  showDetails.value = true; // Mostrar el modal de detalles
+};
+
+// Función para cerrar el modal de detalles
+const closeDetails = () => {
+  showDetails.value = false;
+  selectedProduct.value = null;
 };
 
 // Al montar el componente, cargar la primera página
@@ -81,6 +96,8 @@ const logout = async () => {
       <div class="product-card" v-for="producto in productos" :key="producto.id">
         <img :src="`/images/${producto.imagen}`" :alt="producto.nombre" class="product-image" />
         <h2 class="product-name">{{ producto.nombre }}</h2>
+        <!-- Botón de Ver Detalles -->
+        <button class="details-button" @click="viewDetails(producto)">Ver Detalles</button>
       </div>
     </div>
 
@@ -89,6 +106,18 @@ const logout = async () => {
       <button :disabled="currentPage === 1" @click="previousPage">Anterior</button>
       <span>Página {{ currentPage }}</span>
       <button :disabled="!hasMorePages" @click="nextPage">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Modal para mostrar los detalles del producto -->
+  <div v-if="showDetails" class="details-modal">
+    <div class="modal-content">
+      <button class="close-button" @click="closeDetails">X</button>
+      <img :src="`/images/${selectedProduct.imagen}`" :alt="selectedProduct.nombre" class="modal-image" />
+      <h2>{{ selectedProduct.nombre }}</h2>
+      <p><strong>Categoría:</strong> {{ selectedProduct.categoria }}</p>
+      <p><strong>Precio:</strong> €{{ selectedProduct.precio.toFixed(2) }}</p>
+      <p><strong>Descripción:</strong> {{ selectedProduct.descripcion }}</p>
     </div>
   </div>
 </template>
@@ -154,6 +183,20 @@ const logout = async () => {
   color: #333;
 }
 
+.details-button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.details-button:hover {
+  background-color: #0056b3;
+}
+
 .pagination {
   margin-top: 1rem;
   display: flex;
@@ -174,5 +217,45 @@ const logout = async () => {
 .pagination button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+}
+
+.modal-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 </style>

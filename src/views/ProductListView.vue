@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { listarProductos } from '@/repositories/productRepository';
+import { listarProductos, eliminarProducto } from '@/repositories/productRepository';
 import NavBar from '@/components/NavBar.vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
@@ -67,6 +67,21 @@ const editProduct = (productId) => {
   router.push(`/products/edit/${productId}`); // Navegar a la vista de edición
 };
 
+// Función para eliminar un producto
+const deleteProduct = async (productId) => {
+  const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este producto?');
+  if (!confirmDelete) return;
+
+  try {
+    await eliminarProducto(productId); // Eliminar de la base de datos
+    productos.value = productos.value.filter((producto) => producto.id !== productId); // Eliminar de la vista
+    alert('Producto eliminado exitosamente.');
+  } catch (error) {
+    console.error('Error al eliminar producto:', error.message);
+    alert('Hubo un error al eliminar el producto.');
+  }
+};
+
 // Al montar el componente, cargar la primera página
 onMounted(() => loadProductos(1));
 
@@ -107,6 +122,14 @@ const logout = async () => {
         <button class="details-button" @click="viewDetails(producto)">Ver Detalles</button>
         <!-- Botón de editar visible solo para administradores -->
         <button v-if="authStore.user?.isAdmin" class="edit-button" @click="editProduct(producto.id)">Editar</button>
+        <!-- Botón de borrar visible solo para administradores -->
+        <button
+          v-if="authStore.user?.isAdmin"
+          class="delete-button"
+          @click="deleteProduct(producto.id)"
+        >
+          Borrar
+        </button>
       </div>
     </div>
 
@@ -217,6 +240,21 @@ const logout = async () => {
 
 .edit-button:hover {
   background-color: #e0a800;
+}
+
+/* Botón de borrar */
+.delete-button {
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: #bd2130;
 }
 
 .pagination {

@@ -21,11 +21,12 @@ import {
  * @param {string} categoria
  * @param {number} precio
  * @param {string} descripcion
+ * @param {string} imagen
  */
-async function createProducto(nombre, categoria, precio, descripcion) {
+async function createProducto(nombre, categoria, precio, descripcion, imagen) {
     try {
         const productoRef = doc(collection(db, 'productos'));
-        const newProducto = { nombre, categoria, precio, descripcion };
+        const newProducto = { nombre, categoria, precio, descripcion, imagen }; // Incluye la imagen
         await setDoc(productoRef, newProducto);
         console.log('Producto creado con éxito.');
         return { id: productoRef.id, ...newProducto };
@@ -40,7 +41,7 @@ async function createProducto(nombre, categoria, precio, descripcion) {
  * @param {number} limite
  * @param {DocumentSnapshot} lastVisible
  */
-async function listarProductos(limite = 5, lastVisible = null) {
+async function listarProductos(limite = 6, lastVisible = null) {
     try {
         let productosQuery = query(collection(db, 'productos'), orderBy('nombre', 'asc'), limit(limite));
         if (lastVisible) {

@@ -18,7 +18,10 @@
           <router-link to="/about-us" class="navbar-link">Sobre Nosotros</router-link>
         </li>
 
-        <li><a href="#">Nuestros Productos</a></li>
+        <li>
+          <router-link to="/products" class="navbar-link">Nuestros Productos</router-link>
+        </li>
+
 
         <!-- Mostrar "Crear Producto" solo si el usuario es administrador -->
         <li v-if="isAdmin">

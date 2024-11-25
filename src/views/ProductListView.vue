@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue';
 import { listarProductos } from '@/repositories/productRepository';
 import NavBar from '@/components/NavBar.vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
+const router = useRouter();
 const authStore = useAuthStore();
 const productos = ref([]);
 const currentPage = ref(1); // Página actual
@@ -60,6 +62,11 @@ const closeDetails = () => {
   selectedProduct.value = null;
 };
 
+// Redirigir a la vista de edición de producto
+const editProduct = (productId) => {
+  router.push(`/products/edit/${productId}`); // Navegar a la vista de edición
+};
+
 // Al montar el componente, cargar la primera página
 onMounted(() => loadProductos(1));
 
@@ -98,6 +105,8 @@ const logout = async () => {
         <h2 class="product-name">{{ producto.nombre }}</h2>
         <!-- Botón de Ver Detalles -->
         <button class="details-button" @click="viewDetails(producto)">Ver Detalles</button>
+        <!-- Botón de editar visible solo para administradores -->
+        <button v-if="authStore.user?.isAdmin" class="edit-button" @click="editProduct(producto.id)">Editar</button>
       </div>
     </div>
 
@@ -125,7 +134,7 @@ const logout = async () => {
 <style scoped>
 .product-list-container {
   padding: 2rem;
-  margin-top: 4rem; /* Para que no choque con el navbar */
+  margin-top: 4rem;
   text-align: center;
 }
 
@@ -133,7 +142,6 @@ const logout = async () => {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 2rem;
-  text-align: center;
   color: #333;
 }
 
@@ -145,13 +153,13 @@ const logout = async () => {
 
 @media (max-width: 768px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 productos por fila en pantallas medianas */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 480px) {
   .product-grid {
-    grid-template-columns: 1fr; /* 1 producto por fila en pantallas pequeñas */
+    grid-template-columns: 1fr;
   }
 }
 
@@ -197,11 +205,24 @@ const logout = async () => {
   background-color: #0056b3;
 }
 
+.edit-button {
+  padding: 0.5rem 1rem;
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #e0a800;
+}
+
 .pagination {
   margin-top: 1rem;
   display: flex;
   justify-content: center;
-  align-items: center;
   gap: 1rem;
 }
 
@@ -233,13 +254,13 @@ const logout = async () => {
 }
 
 .modal-content {
+  position: relative; /* Asegura que la X se posicione dentro del modal */
   background-color: white;
   padding: 2rem;
   border-radius: 8px;
-  text-align: center;
   max-width: 400px;
   width: 90%;
-  position: relative;
+  text-align: center;
 }
 
 .modal-image {
@@ -256,6 +277,12 @@ const logout = async () => {
   background: none;
   border: none;
   font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
   cursor: pointer;
+}
+
+.close-button:hover {
+  color: red; /* Cambia a rojo cuando el cursor pasa sobre la X */
 }
 </style>

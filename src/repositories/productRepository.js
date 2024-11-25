@@ -67,12 +67,15 @@ async function obtenerProducto(id) {
         const productoRef = doc(db, 'productos', id);
         const productoSnap = await getDoc(productoRef);
         if (!productoSnap.exists()) throw new Error('Producto no encontrado.');
-        return { id: productoSnap.id, ...productoSnap.data() };
+        const producto = { id: productoSnap.id, ...productoSnap.data() };
+        console.log('Producto obtenido:', producto); // Verifica los datos aquí
+        return producto;
     } catch (error) {
         console.error('Error al obtener producto:', error.message);
         throw error;
     }
 }
+
 
 /**
  * Modificar un producto.

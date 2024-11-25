@@ -78,6 +78,12 @@ const router = createRouter({
       name: 'products',
       component: ProductListView, 
     },
+    {
+      path: '/products/edit/:id',
+      name: 'EditProduct',
+      component: () => import('@/views/EditProductView.vue'),
+      meta: { requiresAuth: true }, // Si necesitas proteger la ruta
+    },
   ],
 });
 

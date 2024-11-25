@@ -11,54 +11,26 @@ import {
     where, 
     orderBy, 
     startAfter, 
-    limit 
+    limit,
+    serverTimestamp // Para añadir la fecha de creación automáticamente
 } from '@/config/firebase';
-
-/**
- * Obtener el próximo ID secuencial basado en el valor máximo actual
- * @returns {Promise<number>} Próximo ID secuencial.
- */
-async function obtenerSiguienteIdSecuencialComentario() {
-    try {
-        const comentariosSnapshot = await getDocs(collection(db, "comentarios"));
-        const comentarios = comentariosSnapshot.docs.map((doc) => doc.data());
-
-        if (comentarios.length === 0) {
-            return 1;
-        }
-
-        const maxIdSecuencial = Math.max(...comentarios.map(comentario => comentario.idSecuencial));
-        return maxIdSecuencial + 1;
-    } catch (error) {
-        console.error("Error al obtener el siguiente ID secuencial:", error.message);
-        return null;
-    }
-}
 
 /**
  * Crear un nuevo comentario
  * @param {string} productoId ID del producto asociado.
- * @param {string} userId ID del usuario que comenta.
+ * @param {string} nombreUsuario Nombre del usuario que comenta.
  * @param {string} contenido Contenido del comentario.
+ * @param {string} productoAsociado Nombre del producto asociado al comentario.
  * @returns {Promise<Object>} Comentario creado.
  */
-async function crearComentario(productoId, userId, contenido) {
+async function crearComentario(productoId, nombreUsuario, contenido, productoAsociado) {
     try {
-        const nextIdSecuencial = await obtenerSiguienteIdSecuencialComentario();
-        const usuarioDoc = await getDoc(doc(db, 'users', userId));
-
-        if (!usuarioDoc.exists()) {
-            throw new Error("El usuario no existe.");
-        }
-
-        const usuarioData = usuarioDoc.data();
         const nuevoComentario = {
-            idSecuencial: nextIdSecuencial,
             productoId,
-            userId,
-            nombreUsuario: usuarioData.nombre,
-            apellidosUsuario: usuarioData.apellidos,
+            nombreUsuario,
             contenido,
+            productoAsociado,
+            fechaCreacion: serverTimestamp(),
         };
 
         const comentarioRef = doc(collection(db, 'comentarios'));
@@ -72,60 +44,32 @@ async function crearComentario(productoId, userId, contenido) {
 
 /**
  * Modificar un comentario
- * @param {string} comentarioIdSecuencial ID secuencial del comentario a modificar.
- * @param {string} userId ID del usuario que comenta.
+ * @param {string} comentarioId ID del comentario a modificar.
  * @param {string} nuevoContenido Nuevo contenido del comentario.
  * @returns {Promise<boolean>} `true` si el comentario fue modificado.
  */
-async function modificarComentario(comentarioIdSecuencial, userId, nuevoContenido) {
+async function modificarComentario(comentarioId, nuevoContenido) {
     try {
-        const comentariosSnapshot = await getDocs(collection(db, 'comentarios'));
-        const comentarios = comentariosSnapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id,
-        }));
-
-        const comentarioAModificar = comentarios.find(comentario => comentario.idSecuencial === comentarioIdSecuencial);
-
-        if (!comentarioAModificar) {
-            throw new Error("El comentario no existe.");
-        }
-
-        if (comentarioAModificar.userId !== userId) {
-            throw new Error("No tienes permiso para modificar este comentario.");
-        }
-
-        await updateDoc(doc(db, 'comentarios', comentarioAModificar.id), {
+        const comentarioRef = doc(db, 'comentarios', comentarioId);
+        await updateDoc(comentarioRef, {
             contenido: nuevoContenido,
         });
-
         return true;
     } catch (error) {
-        console.error("Error al modificar comentario:", error.message);
+        console.error('Error al modificar comentario:', error.message);
         throw error;
     }
 }
 
 /**
  * Eliminar un comentario
- * @param {number} comentarioIdSecuencial ID secuencial del comentario a eliminar.
+ * @param {string} comentarioId ID del comentario a eliminar.
  * @returns {Promise<void>}
  */
-async function eliminarComentario(comentarioIdSecuencial) {
+async function eliminarComentario(comentarioId) {
     try {
-        const comentariosSnapshot = await getDocs(collection(db, 'comentarios'));
-        const comentarios = comentariosSnapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id,
-        }));
-
-        const comentarioAEliminar = comentarios.find(comentario => comentario.idSecuencial === comentarioIdSecuencial);
-
-        if (!comentarioAEliminar) {
-            throw new Error("El comentario no existe.");
-        }
-
-        await deleteDoc(doc(db, 'comentarios', comentarioAEliminar.id));
+        const comentarioRef = doc(db, 'comentarios', comentarioId);
+        await deleteDoc(comentarioRef);
     } catch (error) {
         console.error('Error al eliminar el comentario:', error.message);
         throw error;
@@ -144,7 +88,7 @@ async function listarComentariosPorProducto(productoId, limite = 5, lastVisible 
         let comentariosQuery = query(
             collection(db, "comentarios"),
             where("productoId", "==", productoId),
-            orderBy("idSecuencial", "asc"),
+            orderBy("fechaCreacion", "desc"),
             limit(limite)
         );
 

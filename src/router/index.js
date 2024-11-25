@@ -84,6 +84,12 @@ const router = createRouter({
       component: () => import('@/views/EditProductView.vue'),
       meta: { requiresAuth: true }, // Si necesitas proteger la ruta
     },
+    {
+      path: '/products/:productoId/add-comment',
+      name: 'AddComment',
+      component: () => import('@/views/AddCommentView.vue'),
+    },
+    
   ],
 });
 

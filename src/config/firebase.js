@@ -22,8 +22,9 @@ import {
     where, 
     writeBatch,
     startAfter,
-    limit  // <-- Asegúrate de importar writeBatch
-} from "firebase/firestore"; // Asegúrate de incluir 'writeBatch' también
+    limit,
+    serverTimestamp // <-- Importar serverTimestamp
+} from "firebase/firestore";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -39,9 +40,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); 
+const db = getFirestore(app);
 
-// Exportar funcionalidades de Firebase, incluyendo 'writeBatch'
+// Exportar funcionalidades de Firebase, incluyendo serverTimestamp
 export { 
     auth, 
     db, 
@@ -62,5 +63,6 @@ export {
     where, 
     writeBatch,
     startAfter,
-    limit // <-- Añade writeBatch a la exportación
+    limit,
+    serverTimestamp // <-- Exportar serverTimestamp
 };

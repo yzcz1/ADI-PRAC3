@@ -146,6 +146,14 @@ const logout = async () => {
         >
           Borrar
         </button>
+
+        <button
+           class="add-comment-button"
+          @click="router.push({ name: 'AddComment', params: { productoId: producto.id }, query: { nombreProducto: producto.nombre } })"
+        >
+         Añadir Comentario
+        </button>
+
       </div>
     </div>
 
@@ -345,4 +353,31 @@ const logout = async () => {
 .close-button:hover {
   color: red; /* Cambia a rojo cuando el cursor pasa sobre la X */
 }
+
+.add-comment-button {
+  padding: 0.5rem 1rem; /* Espaciado interno del botón */
+  background-color: #007bff; /* Color azul para el botón */
+  color: white; /* Texto blanco */
+  border: none; /* Sin bordes */
+  border-radius: 4px; /* Bordes redondeados */
+  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+  font-size: 1rem; /* Tamaño de fuente */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Transiciones suaves */
+}
+
+.add-comment-button:hover {
+  background-color: #0056b3; /* Azul más oscuro al pasar el ratón */
+  transform: scale(1.05); /* Pequeño zoom al pasar el ratón */
+}
+
+.add-comment-button:active {
+  background-color: #004080; /* Azul aún más oscuro al hacer clic */
+  transform: scale(0.95); /* Botón ligeramente más pequeño al hacer clic */
+}
+
+.add-comment-button:disabled {
+  background-color: #ccc; /* Botón gris cuando está deshabilitado */
+  cursor: not-allowed; /* Cursor deshabilitado */
+}
+
 </style>

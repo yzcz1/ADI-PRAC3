@@ -67,15 +67,20 @@ const editProduct = (productId) => {
   router.push(`/products/edit/${productId}`); // Navegar a la vista de edición
 };
 
-// Función para eliminar un producto
+// Función para eliminar un producto con animación
 const deleteProduct = async (productId) => {
-  const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este producto?');
-  if (!confirmDelete) return;
+  
 
   try {
-    await eliminarProducto(productId); // Eliminar de la base de datos
-    productos.value = productos.value.filter((producto) => producto.id !== productId); // Eliminar de la vista
-    alert('Producto eliminado exitosamente.');
+    const productIndex = productos.value.findIndex((producto) => producto.id === productId);
+    if (productIndex !== -1) {
+      productos.value[productIndex].isBeingDeleted = true; // Activar la animación solo en el producto específico
+      setTimeout(async () => {
+        await eliminarProducto(productId); // Eliminar de la base de datos
+        productos.value.splice(productIndex, 1); // Eliminar de la vista
+       
+      }, 300); // Tiempo de la animación antes de eliminar el producto
+    }
   } catch (error) {
     console.error('Error al eliminar producto:', error.message);
     alert('Hubo un error al eliminar el producto.');
@@ -115,13 +120,24 @@ const logout = async () => {
   <div class="product-list-container">
     <h1 class="title">Nuestros productos</h1>
     <div class="product-grid">
-      <div class="product-card" v-for="producto in productos" :key="producto.id">
+      <div
+        v-for="producto in productos"
+        :key="producto.id"
+        class="product-card"
+        :class="{ deleting: producto.isBeingDeleted }"
+      >
         <img :src="`/images/${producto.imagen}`" :alt="producto.nombre" class="product-image" />
         <h2 class="product-name">{{ producto.nombre }}</h2>
         <!-- Botón de Ver Detalles -->
         <button class="details-button" @click="viewDetails(producto)">Ver Detalles</button>
         <!-- Botón de editar visible solo para administradores -->
-        <button v-if="authStore.user?.isAdmin" class="edit-button" @click="editProduct(producto.id)">Editar</button>
+        <button
+          v-if="authStore.user?.isAdmin"
+          class="edit-button"
+          @click="editProduct(producto.id)"
+        >
+          Editar
+        </button>
         <!-- Botón de borrar visible solo para administradores -->
         <button
           v-if="authStore.user?.isAdmin"
@@ -193,6 +209,12 @@ const logout = async () => {
   overflow: hidden;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card.deleting {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
 }
 
 .product-card:hover {

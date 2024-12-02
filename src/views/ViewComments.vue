@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth';
 const comentarios = ref([]);
 const isLoading = ref(false);
 const errorMessage = ref('');
+const comentarioSeleccionado = ref(null); // Para almacenar el comentario seleccionado
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -30,8 +31,24 @@ const cargarComentarios = async () => {
   }
 };
 
-onMounted(() => cargarComentarios());
+// Función para mostrar los detalles del comentario en el modal
+const verDetalles = (comentario) => {
+  comentarioSeleccionado.value = comentario;
+};
 
+// Función para cerrar el modal
+const cerrarModal = () => {
+  comentarioSeleccionado.value = null;
+};
+
+// Formatear fecha
+const formatDate = (timestamp) => {
+  if (!timestamp) return "Fecha no disponible";
+  const date = new Date(timestamp.seconds * 1000); // Firebase Timestamp -> JS Date
+  return date.toLocaleString();
+};
+
+onMounted(() => cargarComentarios());
 
 // Función de logout
 const logout = async () => {
@@ -60,6 +77,21 @@ const logout = async () => {
           <UserIcon />
           <span class="comment-user">{{ comentario.nombreUsuario || 'Usuario Anónimo' }}</span>
         </div>
+        <!-- Botón Ver detalles -->
+        <button @click="verDetalles(comentario)" class="view-details-button">Ver detalles</button>
+      </div>
+    </div>
+
+    <!-- Modal de detalles del comentario -->
+    <div v-if="comentarioSeleccionado" class="modal-overlay" @click.self="cerrarModal">
+      <div class="modal">
+        <h2>Detalles del Comentario</h2>
+        <p><strong>Producto ID:</strong> {{ comentarioSeleccionado.productoId }}</p>
+        <p><strong>Producto Asociado:</strong> {{ comentarioSeleccionado.productoAsociado }}</p>
+        <p><strong>Nombre Usuario:</strong> {{ comentarioSeleccionado.nombreUsuario }}</p>
+        <p><strong>Fecha Creación:</strong> {{ formatDate(comentarioSeleccionado.fechaCreacion) }}</p>
+        <p><strong>Contenido:</strong> {{ comentarioSeleccionado.contenido }}</p>
+        <button @click="cerrarModal" class="close-modal-button">Cerrar</button>
       </div>
     </div>
   </div>
@@ -124,5 +156,57 @@ h1 {
 .comment-user {
   font-size: 0.9rem;
   color: #666;
+}
+
+.view-details-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.view-details-button:hover {
+  background: #0056b3;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal h2 {
+  margin-top: 0;
+}
+
+.close-modal-button {
+  background: #ff5f5f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.close-modal-button:hover {
+  background: #ff3333;
 }
 </style>

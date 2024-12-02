@@ -89,6 +89,11 @@ const router = createRouter({
       name: 'AddComment',
       component: () => import('@/views/AddCommentView.vue'),
     },
+    {
+      path: '/products/:productoId/comments',
+      name: 'ViewComments',
+      component: () => import('@/views/ViewComments.vue'),
+    },
     
   ],
 });

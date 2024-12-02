@@ -17,7 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = {
         email: loggedUser.email,
         uid: loggedUser.uid,
-        nombre: loggedUser.displayName || 'Usuario', // Nombre del usuario
+        nombre: loggedUser.nombre || 'Usuario', // Nombre del usuario
         rol: loggedUser.rol, // Rol del usuario
         isAdmin, // Bandera para saber si es administrador
       };

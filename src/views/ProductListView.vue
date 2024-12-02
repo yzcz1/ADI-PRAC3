@@ -154,6 +154,15 @@ const logout = async () => {
          Añadir Comentario
         </button>
 
+        <button
+           class="view-comments-button"
+           @click="router.push({ name: 'ViewComments', params: { productoId: producto.id }, query: { nombreProducto: producto.nombre } })"
+        >
+        Ver Comentarios
+        </button>
+
+
+
       </div>
     </div>
 
@@ -379,5 +388,27 @@ const logout = async () => {
   background-color: #ccc; /* Botón gris cuando está deshabilitado */
   cursor: not-allowed; /* Cursor deshabilitado */
 }
+
+.view-comments-button {
+  padding: 0.5rem 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.view-comments-button:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.view-comments-button:active {
+  background-color: #1e7e34;
+  transform: scale(0.95);
+}
+
 
 </style>

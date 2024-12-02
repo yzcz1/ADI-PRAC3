@@ -155,11 +155,20 @@ const logout = async () => {
         </button>
 
         <button
-           class="view-comments-button"
-           @click="router.push({ name: 'ViewComments', params: { productoId: producto.id }, query: { nombreProducto: producto.nombre } })"
+          class="view-comments-button"
+          @click="() => {
+            console.log('Producto ID:', producto.id);
+            console.log('Nombre Producto:', producto.nombre);
+            router.push({ 
+              name: 'ViewComments', 
+              params: { productoId: producto.id }, 
+              query: { nombreProducto: producto.nombre } 
+            });
+          }"
         >
-        Ver Comentarios
+          Ver Comentarios
         </button>
+
 
 
 

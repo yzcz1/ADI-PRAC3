@@ -69,8 +69,6 @@ const editProduct = (productId) => {
 
 // Función para eliminar un producto con animación
 const deleteProduct = async (productId) => {
-  
-
   try {
     const productIndex = productos.value.findIndex((producto) => producto.id === productId);
     if (productIndex !== -1) {
@@ -78,7 +76,6 @@ const deleteProduct = async (productId) => {
       setTimeout(async () => {
         await eliminarProducto(productId); // Eliminar de la base de datos
         productos.value.splice(productIndex, 1); // Eliminar de la vista
-       
       }, 300); // Tiempo de la animación antes de eliminar el producto
     }
   } catch (error) {
@@ -128,50 +125,46 @@ const logout = async () => {
       >
         <img :src="`/images/${producto.imagen}`" :alt="producto.nombre" class="product-image" />
         <h2 class="product-name">{{ producto.nombre }}</h2>
-        <!-- Botón de Ver Detalles -->
-        <button class="details-button" @click="viewDetails(producto)">Ver Detalles</button>
-        <!-- Botón de editar visible solo para administradores -->
-        <button
-          v-if="authStore.user?.isAdmin"
-          class="edit-button"
-          @click="editProduct(producto.id)"
-        >
-          Editar
-        </button>
-        <!-- Botón de borrar visible solo para administradores -->
-        <button
-          v-if="authStore.user?.isAdmin"
-          class="delete-button"
-          @click="deleteProduct(producto.id)"
-        >
-          Borrar
-        </button>
 
-        <button
-           class="add-comment-button"
-          @click="router.push({ name: 'AddComment', params: { productoId: producto.id }, query: { nombreProducto: producto.nombre } })"
-        >
-         Añadir Comentario
-        </button>
+        <!-- Contenedor de botones -->
+        <div class="product-buttons">
+          <!-- Botón de Ver Detalles -->
+          <button class="product-button details-button" @click="viewDetails(producto)">Ver Detalles</button>
 
-        <button
-          class="view-comments-button"
-          @click="() => {
-            console.log('Producto ID:', producto.id);
-            console.log('Nombre Producto:', producto.nombre);
-            router.push({ 
-              name: 'ViewComments', 
-              params: { productoId: producto.id }, 
-              query: { nombreProducto: producto.nombre } 
-            });
-          }"
-        >
-          Ver Comentarios
-        </button>
+          <!-- Botón de editar visible solo para administradores -->
+          <button
+            v-if="authStore.user?.isAdmin"
+            class="product-button edit-button"
+            @click="editProduct(producto.id)"
+          >
+            Editar
+          </button>
 
+          <!-- Botón de borrar visible solo para administradores -->
+          <button
+            v-if="authStore.user?.isAdmin"
+            class="product-button delete-button"
+            @click="deleteProduct(producto.id)"
+          >
+            Borrar
+          </button>
 
+          <!-- Botón Añadir Comentario -->
+          <button
+            class="product-button add-comment-button"
+            @click="router.push({ name: 'AddComment', params: { productoId: producto.id }, query: { nombreProducto: producto.nombre } })"
+          >
+            Añadir Comentario
+          </button>
 
-
+          <!-- Botón Ver Comentarios -->
+          <button
+            class="product-button view-comments-button"
+            @click="router.push({ name: 'ViewComments', params: { productoId: producto.id }, query: { nombreProducto: producto.nombre } })"
+          >
+            Ver Comentarios
+          </button>
+        </div>
       </div>
     </div>
 
@@ -262,20 +255,57 @@ const logout = async () => {
   color: #333;
 }
 
-.details-button {
+/* Contenedor de botones */
+.product-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem; /* Espaciado entre botones */
+  margin: 0.5rem 1rem;
+}
+
+/* Estilos comunes para todos los botones */
+.product-button {
   padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
+  font-size: 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Botón Ver Detalles */
+.details-button {
+  background-color: #6a0dad; /* Color morado */
+  color: white; /* Texto blanco */
 }
 
 .details-button:hover {
-  background-color: #0056b3;
+  background-color: #5a0c9a;
 }
 
+/* Botón Añadir Comentario */
+.add-comment-button {
+  background-color: white; /* Fondo blanco */
+  color: black; /* Texto negro */
+  border: 1px solid #ccc; /* Borde gris claro */
+}
+
+.add-comment-button:hover {
+  background-color: #f0f0f0; /* Fondo gris claro */
+}
+
+/* Botón Ver Comentarios */
+.view-comments-button {
+  background-color: #4da6ff; /* Azul claro */
+  color: white; /* Texto blanco */
+}
+
+.view-comments-button:hover {
+  background-color: #3399ff;
+}
+
+/* Botón Editar */
 .edit-button {
   padding: 0.5rem 1rem;
   background-color: #ffc107;
@@ -290,7 +320,7 @@ const logout = async () => {
   background-color: #e0a800;
 }
 
-/* Botón de borrar */
+/* Botón Borrar */
 .delete-button {
   padding: 0.5rem 1rem;
   background-color: #dc3545;
@@ -305,6 +335,7 @@ const logout = async () => {
   background-color: #bd2130;
 }
 
+/* Paginación */
 .pagination {
   margin-top: 1rem;
   display: flex;
@@ -326,6 +357,7 @@ const logout = async () => {
   cursor: not-allowed;
 }
 
+/* Modal para Detalles del Producto */
 .details-modal {
   position: fixed;
   top: 0;
@@ -371,53 +403,4 @@ const logout = async () => {
 .close-button:hover {
   color: red; /* Cambia a rojo cuando el cursor pasa sobre la X */
 }
-
-.add-comment-button {
-  padding: 0.5rem 1rem; /* Espaciado interno del botón */
-  background-color: #007bff; /* Color azul para el botón */
-  color: white; /* Texto blanco */
-  border: none; /* Sin bordes */
-  border-radius: 4px; /* Bordes redondeados */
-  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
-  font-size: 1rem; /* Tamaño de fuente */
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Transiciones suaves */
-}
-
-.add-comment-button:hover {
-  background-color: #0056b3; /* Azul más oscuro al pasar el ratón */
-  transform: scale(1.05); /* Pequeño zoom al pasar el ratón */
-}
-
-.add-comment-button:active {
-  background-color: #004080; /* Azul aún más oscuro al hacer clic */
-  transform: scale(0.95); /* Botón ligeramente más pequeño al hacer clic */
-}
-
-.add-comment-button:disabled {
-  background-color: #ccc; /* Botón gris cuando está deshabilitado */
-  cursor: not-allowed; /* Cursor deshabilitado */
-}
-
-.view-comments-button {
-  padding: 0.5rem 1rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.view-comments-button:hover {
-  background-color: #218838;
-  transform: scale(1.05);
-}
-
-.view-comments-button:active {
-  background-color: #1e7e34;
-  transform: scale(0.95);
-}
-
-
 </style>

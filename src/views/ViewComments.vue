@@ -59,7 +59,6 @@ const logout = async () => {
     alert('Error al cerrar sesión: ' + error.message);
   }
 };
-
 </script>
 
 <template>
@@ -125,10 +124,23 @@ h1 {
   color: red;
 }
 
+/* Ajuste de la cuadrícula para mostrar filas de tres comentarios */
 .comments-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .comments-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .comments-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .comment-card {

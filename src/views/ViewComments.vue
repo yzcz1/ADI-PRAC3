@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { listarComentariosPorProducto, modificarComentario } from '@/repositories/commentRepository';
+import { listarComentariosPorProducto, modificarComentario, eliminarComentario } from '@/repositories/commentRepository';
 import NavBar from '@/components/NavBar.vue';
 import UserIcon from '@/components/icons/UserIcon.vue'; // Icono de usuario
 import { useRoute, useRouter } from 'vue-router';
@@ -83,6 +83,20 @@ const cancelarEdicion = () => {
   editSuccessMessage.value = '';
 };
 
+// Función para eliminar un comentario
+const eliminarComentarioHandler = async (comentarioId) => {
+  if (!confirm('¿Estás seguro de que quieres eliminar este comentario?')) return;
+
+  try {
+    await eliminarComentario(comentarioId);
+    comentarios.value = comentarios.value.filter((comentario) => comentario.id !== comentarioId);
+    alert('Comentario eliminado con éxito.');
+  } catch (error) {
+    console.error('Error al eliminar comentario:', error.message);
+    alert('Hubo un error al eliminar el comentario.');
+  }
+};
+
 // Formatear fecha
 const formatDate = (timestamp) => {
   if (!timestamp) return 'Fecha no disponible';
@@ -127,6 +141,14 @@ const logout = async () => {
           class="edit-button"
         >
           Editar
+        </button>
+        <!-- Botón Eliminar -->
+        <button
+          v-if="authStore.user?.isAdmin || authStore.user?.nombre === comentario.nombreUsuario"
+          @click="eliminarComentarioHandler(comentario.id)"
+          class="delete-button"
+        >
+          Eliminar
         </button>
       </div>
     </div>
@@ -267,6 +289,20 @@ h1 {
   background: #31b0d5; /* Azul un poco más oscuro al pasar el cursor */
 }
 
+.delete-button {
+  background: #dc3545; /* Rojo */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px; /* Separación respecto a los otros botones */
+}
+
+.delete-button:hover {
+  background: #c82333; /* Rojo más oscuro al pasar el cursor */
+}
 
 .modal-overlay {
   position: fixed;

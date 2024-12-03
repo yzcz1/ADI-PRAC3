@@ -1,17 +1,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { listarComentariosPorProducto } from '@/repositories/commentRepository';
+import { listarComentariosPorProducto, modificarComentario } from '@/repositories/commentRepository';
 import NavBar from '@/components/NavBar.vue';
 import UserIcon from '@/components/icons/UserIcon.vue'; // Icono de usuario
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
 const comentarios = ref([]);
 const isLoading = ref(false);
 const errorMessage = ref('');
 const comentarioSeleccionado = ref(null); // Para almacenar el comentario seleccionado
+const comentarioEnEdicion = ref(null); // Para almacenar el comentario que se está editando
+const nuevoContenido = ref(''); // Contenido del comentario a editar
+const editErrorMessage = ref(''); // Mensaje de error en edición
+const editSuccessMessage = ref(''); // Mensaje de éxito en edición
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 const productoId = route.params.productoId; // ID del producto
 const nombreProducto = route.query.nombreProducto; // Nombre del producto
@@ -36,14 +41,51 @@ const verDetalles = (comentario) => {
   comentarioSeleccionado.value = comentario;
 };
 
-// Función para cerrar el modal
+// Función para cerrar el modal de detalles
 const cerrarModal = () => {
   comentarioSeleccionado.value = null;
 };
 
+// Función para abrir el modo de edición
+const editarComentario = (comentario) => {
+  comentarioEnEdicion.value = comentario;
+  nuevoContenido.value = comentario.contenido; // Prellenar el contenido existente
+  editErrorMessage.value = '';
+  editSuccessMessage.value = '';
+};
+
+// Función para guardar los cambios en el comentario
+const guardarEdicion = async () => {
+  if (!nuevoContenido.value.trim()) {
+    editErrorMessage.value = 'El contenido del comentario no puede estar vacío.';
+    return;
+  }
+
+  try {
+    await modificarComentario(comentarioEnEdicion.value.id, nuevoContenido.value);
+    comentarioEnEdicion.value.contenido = nuevoContenido.value;
+    editSuccessMessage.value = 'Comentario editado con éxito.';
+    setTimeout(() => {
+      comentarioEnEdicion.value = null;
+      cargarComentarios();
+    }, 2000);
+  } catch (error) {
+    console.error('Error al editar comentario:', error.message);
+    editErrorMessage.value = 'Hubo un error al editar el comentario.';
+  }
+};
+
+// Función para cancelar la edición
+const cancelarEdicion = () => {
+  comentarioEnEdicion.value = null;
+  nuevoContenido.value = '';
+  editErrorMessage.value = '';
+  editSuccessMessage.value = '';
+};
+
 // Formatear fecha
 const formatDate = (timestamp) => {
-  if (!timestamp) return "Fecha no disponible";
+  if (!timestamp) return 'Fecha no disponible';
   const date = new Date(timestamp.seconds * 1000); // Firebase Timestamp -> JS Date
   return date.toLocaleString();
 };
@@ -78,6 +120,14 @@ const logout = async () => {
         </div>
         <!-- Botón Ver detalles -->
         <button @click="verDetalles(comentario)" class="view-details-button">Ver detalles</button>
+        <!-- Botón Editar -->
+        <button
+          v-if="authStore.user?.isAdmin || authStore.user?.nombre === comentario.nombreUsuario"
+          @click="editarComentario(comentario)"
+          class="edit-button"
+        >
+          Editar
+        </button>
       </div>
     </div>
 
@@ -91,6 +141,18 @@ const logout = async () => {
         <p><strong>Fecha Creación:</strong> {{ formatDate(comentarioSeleccionado.fechaCreacion) }}</p>
         <p><strong>Contenido:</strong> {{ comentarioSeleccionado.contenido }}</p>
         <button @click="cerrarModal" class="close-modal-button">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Modal de edición -->
+    <div v-if="comentarioEnEdicion" class="modal-overlay" @click.self="cancelarEdicion">
+      <div class="modal">
+        <h2>Editar Comentario</h2>
+        <textarea v-model="nuevoContenido" rows="5" placeholder="Edita tu comentario..."></textarea>
+        <div v-if="editErrorMessage" class="error">{{ editErrorMessage }}</div>
+        <div v-if="editSuccessMessage" class="success">{{ editSuccessMessage }}</div>
+        <button @click="guardarEdicion" class="save-button">Guardar</button>
+        <button @click="cancelarEdicion" class="cancel-button">Cancelar</button>
       </div>
     </div>
   </div>
@@ -122,6 +184,12 @@ h1 {
   text-align: center;
   font-size: 1.2rem;
   color: red;
+}
+
+.success {
+  text-align: center;
+  font-size: 1.2rem;
+  color: green;
 }
 
 /* Ajuste de la cuadrícula para mostrar filas de tres comentarios */
@@ -170,16 +238,19 @@ h1 {
   color: #666;
 }
 
-.view-details-button {
+.view-details-button,
+.edit-button {
   background: #007bff;
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
-.view-details-button:hover {
+.view-details-button:hover,
+.edit-button:hover {
   background: #0056b3;
 }
 
@@ -209,6 +280,46 @@ h1 {
   margin-top: 0;
 }
 
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  resize: none;
+  font-size: 1rem;
+  color: #333;
+}
+
+.save-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.save-button:hover {
+  background: #218838;
+}
+
+.cancel-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.cancel-button:hover {
+  background: #c82333;
+}
+
 .close-modal-button {
   background: #ff5f5f;
   color: white;
@@ -216,6 +327,7 @@ h1 {
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
 .close-modal-button:hover {

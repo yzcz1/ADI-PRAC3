@@ -62,6 +62,25 @@ async function modificarComentario(comentarioId, nuevoContenido) {
 }
 
 /**
+ * Obtener un comentario por su ID
+ * @param {string} comentarioId ID del comentario a obtener.
+ * @returns {Promise<Object>} Comentario obtenido.
+ */
+async function obtenerComentario(comentarioId) {
+    try {
+        const comentarioRef = doc(db, 'comentarios', comentarioId);
+        const comentarioSnap = await getDoc(comentarioRef);
+        if (!comentarioSnap.exists()) {
+            throw new Error('Comentario no encontrado.');
+        }
+        return { id: comentarioSnap.id, ...comentarioSnap.data() };
+    } catch (error) {
+        console.error('Error al obtener comentario:', error.message);
+        throw error;
+    }
+}
+
+/**
  * Eliminar un comentario
  * @param {string} comentarioId ID del comentario a eliminar.
  * @returns {Promise<void>}
@@ -114,6 +133,7 @@ async function listarComentariosPorProducto(productoId, limite = 5, lastVisible 
 export {
     crearComentario,
     modificarComentario,
+    obtenerComentario,
     eliminarComentario,
     listarComentariosPorProducto,
 };

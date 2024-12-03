@@ -238,9 +238,23 @@ h1 {
   color: #666;
 }
 
-.view-details-button,
+.view-details-button {
+  background: #007bff; /* Color actual del botón "Ver detalles" */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px; /* Añadimos un margen inferior para separar los botones */
+  transition: background 0.3s;
+}
+
+.view-details-button:hover {
+  background: #0056b3;
+}
+
 .edit-button {
-  background: #007bff;
+  background: #5bc0de; /* Azul claro profesional */
   color: white;
   border: none;
   padding: 10px 15px;
@@ -249,10 +263,10 @@ h1 {
   transition: background 0.3s;
 }
 
-.view-details-button:hover,
 .edit-button:hover {
-  background: #0056b3;
+  background: #31b0d5; /* Azul un poco más oscuro al pasar el cursor */
 }
+
 
 .modal-overlay {
   position: fixed;

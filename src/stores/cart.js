@@ -6,7 +6,13 @@ export const useCartStore = defineStore('cart', () => {
 
   // Añadir un producto al carrito
   const addToCart = (product) => {
-    cart.value.push(product);
+    // Verifica si el producto ya existe en el carrito
+    const exists = cart.value.some((item) => item.id === product.id);
+    if (!exists) {
+      cart.value.push(product);
+      return true; // Retorna true si se añadió exitosamente
+    }
+    return false; // Retorna false si el producto ya existe
   };
 
   // Eliminar un producto del carrito

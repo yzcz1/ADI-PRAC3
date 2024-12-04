@@ -21,8 +21,9 @@ const showDetails = ref(false); // Estado para mostrar detalles del producto
 
 const itemsPerPage = 6; // Número de productos por página
 
-// Estado para los mensajes de éxito
+// Estado para los mensajes de éxito y error
 const successMessages = ref({});
+const errorMessages = ref({});
 
 // Función para cargar productos
 const loadProductos = async (pagina) => {
@@ -92,12 +93,17 @@ const deleteProduct = async (productId) => {
 
 // Función para añadir producto al carrito
 const addToCart = (producto) => {
-  cartStore.addToCart(producto); // Llama al store para añadir el producto
-  successMessages.value[producto.id] = `Producto añadido al carrito exitosamente.`;
+  const wasAdded = cartStore.addToCart(producto); // Llama al store para añadir el producto
+  if (wasAdded) {
+    successMessages.value[producto.id] = `Producto añadido al carrito exitosamente.`;
+  } else {
+    errorMessages.value[producto.id] = `Ya has añadido este producto a tu carrito.`;
+  }
 
-  // Ocultar el mensaje después de 5 segundos
+  // Ocultar el mensaje de éxito después de 5 segundos
   setTimeout(() => {
     delete successMessages.value[producto.id];
+    delete errorMessages.value[producto.id];
   }, 5000);
 };
 
@@ -187,8 +193,9 @@ const logout = async () => {
             Añadir al carrito
           </button>
 
-          <!-- Mensaje de éxito -->
+          <!-- Mensajes -->
           <p v-if="successMessages[producto.id]" class="success-message">{{ successMessages[producto.id] }}</p>
+          <p v-if="errorMessages[producto.id]" class="error-message">{{ errorMessages[producto.id] }}</p>
         </div>
       </div>
     </div>
@@ -285,7 +292,7 @@ const logout = async () => {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.5rem; /* Espaciado entre botones */
+  gap: 0.5rem;
   margin: 0.5rem 1rem;
 }
 
@@ -301,8 +308,8 @@ const logout = async () => {
 
 /* Botón Ver Detalles */
 .details-button {
-  background-color: #6a0dad; /* Color morado */
-  color: white; /* Texto blanco */
+  background-color: #6a0dad;
+  color: white;
 }
 
 .details-button:hover {
@@ -311,19 +318,19 @@ const logout = async () => {
 
 /* Botón Añadir Comentario */
 .add-comment-button {
-  background-color: white; /* Fondo blanco */
-  color: black; /* Texto negro */
-  border: 1px solid #ccc; /* Borde gris claro */
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
 }
 
 .add-comment-button:hover {
-  background-color: #f0f0f0; /* Fondo gris claro */
+  background-color: #f0f0f0;
 }
 
 /* Botón Ver Comentarios */
 .view-comments-button {
-  background-color: #4da6ff; /* Azul claro */
-  color: white; /* Texto blanco */
+  background-color: #4da6ff;
+  color: white;
 }
 
 .view-comments-button:hover {
@@ -362,20 +369,31 @@ const logout = async () => {
 
 /* Botón Añadir al carrito */
 .cart-button {
-  background-color: #28a745; /* Verde */
-  color: white; /* Texto blanco */
+  background-color: #28a745;
+  color: white;
 }
 
 .cart-button:hover {
-  background-color: #218838; /* Verde oscuro */
+  background-color: #218838;
 }
 
-/* Mensaje de éxito */
+/* Mensajes */
 .success-message {
   margin-top: 0.5rem;
   color: #155724;
   background-color: #d4edda;
   border: 1px solid #c3e6cb;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.error-message {
+  margin-top: 0.5rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
   padding: 0.5rem;
   border-radius: 4px;
   font-size: 0.9rem;
@@ -419,7 +437,7 @@ const logout = async () => {
 }
 
 .modal-content {
-  position: relative; /* Asegura que la X se posicione dentro del modal */
+  position: relative;
   background-color: white;
   padding: 2rem;
   border-radius: 8px;
@@ -448,6 +466,6 @@ const logout = async () => {
 }
 
 .close-button:hover {
-  color: red; /* Cambia a rojo cuando el cursor pasa sobre la X */
+  color: red;
 }
 </style>

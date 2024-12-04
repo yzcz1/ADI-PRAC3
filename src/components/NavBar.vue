@@ -22,7 +22,6 @@
           <router-link to="/products" class="navbar-link">Nuestros Productos</router-link>
         </li>
 
-
         <!-- Mostrar "Crear Producto" solo si el usuario es administrador -->
         <li v-if="isAdmin">
           <router-link to="/create-product" class="navbar-link">Crear Producto</router-link>
@@ -31,7 +30,13 @@
         <li>
           <router-link to="/user-data" class="navbar-link">Mis Datos</router-link>
         </li>
-        <li><a href="#"><i class="fas fa-shopping-cart"></i></a></li>
+        <li class="cart-container">
+          <router-link to="/cart" class="navbar-link">
+            <i class="fas fa-shopping-cart"></i>
+            <!-- Contador del carrito -->
+            <span v-if="cartCount > 0" class="cart-counter">{{ cartCount }}</span>
+          </router-link>
+        </li>
         <!-- Nombre del usuario -->
         <li v-if="username" class="navbar-username">
           <span>Hola, {{ username }}</span>
@@ -53,14 +58,19 @@ defineProps({
   },
 });
 
-import { useAuthStore } from "@/stores/auth";
-import { computed } from "vue";
+import { useAuthStore } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart';
+import { computed } from 'vue';
 
 // Usar el store de autenticación
 const authStore = useAuthStore();
+const cartStore = useCartStore();
 
 // Computed para verificar si el usuario es administrador
 const isAdmin = computed(() => authStore.user?.isAdmin || false);
+
+// Computed para contar los productos en el carrito
+const cartCount = computed(() => cartStore.cart.length);
 </script>
 
 <style scoped>
@@ -120,5 +130,26 @@ const isAdmin = computed(() => authStore.user?.isAdmin || false);
   font-size: 1rem;
   font-weight: bold;
   color: #ffd700;
+}
+
+.cart-container {
+  position: relative;
+}
+
+.cart-counter {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ffc107;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: bold;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 </style>

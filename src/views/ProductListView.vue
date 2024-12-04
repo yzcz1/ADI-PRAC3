@@ -4,9 +4,12 @@ import { listarProductos, eliminarProducto } from '@/repositories/productReposit
 import NavBar from '@/components/NavBar.vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart'; // Store para el carrito
 
 const router = useRouter();
 const authStore = useAuthStore();
+const cartStore = useCartStore(); // Store del carrito
+
 const productos = ref([]);
 const currentPage = ref(1); // Página actual
 const isLoading = ref(false); // Estado de carga
@@ -17,6 +20,9 @@ const selectedProduct = ref(null); // Producto seleccionado para ver detalles
 const showDetails = ref(false); // Estado para mostrar detalles del producto
 
 const itemsPerPage = 6; // Número de productos por página
+
+// Estado para los mensajes de éxito
+const successMessages = ref({});
 
 // Función para cargar productos
 const loadProductos = async (pagina) => {
@@ -82,6 +88,17 @@ const deleteProduct = async (productId) => {
     console.error('Error al eliminar producto:', error.message);
     alert('Hubo un error al eliminar el producto.');
   }
+};
+
+// Función para añadir producto al carrito
+const addToCart = (producto) => {
+  cartStore.addToCart(producto); // Llama al store para añadir el producto
+  successMessages.value[producto.id] = `Producto añadido al carrito exitosamente.`;
+
+  // Ocultar el mensaje después de 5 segundos
+  setTimeout(() => {
+    delete successMessages.value[producto.id];
+  }, 5000);
 };
 
 // Al montar el componente, cargar la primera página
@@ -164,6 +181,14 @@ const logout = async () => {
           >
             Ver Comentarios
           </button>
+
+          <!-- Botón Añadir al carrito -->
+          <button class="product-button cart-button" @click="addToCart(producto)">
+            Añadir al carrito
+          </button>
+
+          <!-- Mensaje de éxito -->
+          <p v-if="successMessages[producto.id]" class="success-message">{{ successMessages[producto.id] }}</p>
         </div>
       </div>
     </div>
@@ -333,6 +358,28 @@ const logout = async () => {
 
 .delete-button:hover {
   background-color: #bd2130;
+}
+
+/* Botón Añadir al carrito */
+.cart-button {
+  background-color: #28a745; /* Verde */
+  color: white; /* Texto blanco */
+}
+
+.cart-button:hover {
+  background-color: #218838; /* Verde oscuro */
+}
+
+/* Mensaje de éxito */
+.success-message {
+  margin-top: 0.5rem;
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 /* Paginación */

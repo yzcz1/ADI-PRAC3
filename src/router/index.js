@@ -94,6 +94,12 @@ const router = createRouter({
       name: 'ViewComments',
       component: () => import('@/views/ViewComments.vue'),
     },
+    {
+      path: '/cart',
+      name: 'Cart',
+      component: () => import('@/views/CartView.vue'),
+    },
+    
     
     
     

@@ -1,12 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { listarProductos, eliminarProducto } from '@/repositories/productRepository';
 import NavBar from '@/components/NavBar.vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useCartStore } from '@/stores/cart'; // Store para el carrito
 
 const router = useRouter();
+const route = useRoute(); // Para capturar los query params
 const authStore = useAuthStore();
 const cartStore = useCartStore(); // Store del carrito
 
@@ -24,6 +25,9 @@ const itemsPerPage = 6; // Número de productos por página
 // Estado para los mensajes de éxito y error
 const successMessages = ref({});
 const errorMessages = ref({});
+
+// Nuevo: Estado para el mensaje de éxito global (compra realizada con éxito)
+const globalSuccessMessage = ref('');
 
 // Función para cargar productos
 const loadProductos = async (pagina) => {
@@ -107,8 +111,21 @@ const addToCart = (producto) => {
   }, 5000);
 };
 
-// Al montar el componente, cargar la primera página
-onMounted(() => loadProductos(1));
+// Nuevo: Verificar si hay un mensaje de éxito en la URL
+const checkGlobalSuccessMessage = () => {
+  if (route.query.success === 'true') {
+    globalSuccessMessage.value = 'Compra realizada con éxito';
+    setTimeout(() => {
+      globalSuccessMessage.value = '';
+    }, 5000); // Eliminar el mensaje después de 5 segundos
+  }
+};
+
+// Al montar el componente, cargar la primera página y verificar el mensaje de éxito
+onMounted(() => {
+  loadProductos(1);
+  checkGlobalSuccessMessage();
+});
 
 // Función para ir a la página siguiente
 const nextPage = async () => {
@@ -137,8 +154,17 @@ const logout = async () => {
 
 <template>
   <NavBar :username="authStore.user?.email" @logout="logout" />
+
   <div class="product-list-container">
     <h1 class="title">Nuestros productos</h1>
+
+      <!-- Nuevo: Mensaje global de éxito -->
+    <div v-if="globalSuccessMessage" class="global-success-message">
+      {{ globalSuccessMessage }}
+    </div>
+
+
+
     <div class="product-grid">
       <div
         v-for="producto in productos"
@@ -400,6 +426,21 @@ const logout = async () => {
   text-align: center;
 }
 
+.global-success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 0.5rem; /* Reduce el padding */
+  border-radius: 4px;
+  text-align: center;
+  margin: 0.5rem auto; /* Margen más pequeño y centrado */
+  font-size: 0.9rem; /* Reduce el tamaño de fuente */
+  font-weight: normal; /* Cambia a fuente normal */
+  width: fit-content; /* Ajusta el ancho al contenido */
+  display: inline-block; /* Asegura que el mensaje esté centrado */
+}
+
+
 /* Paginación */
 .pagination {
   margin-top: 1rem;
@@ -469,3 +510,4 @@ const logout = async () => {
   color: red;
 }
 </style>
+

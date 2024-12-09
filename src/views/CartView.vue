@@ -21,6 +21,53 @@ const subtotal = computed(() => cartStore.calculateSubtotal());
 
 // Total (igual al subtotal porque los envíos son gratuitos)
 const total = computed(() => subtotal.value);
+
+// Función para manejar el pago con Stripe
+const handleCheckout = async () => {
+  try {
+    // Verificar y mostrar el contenido de cartStore.cart
+    console.log('Contenido de cartStore.cart:', cartStore.cart);
+
+    // Validar si el carrito no está vacío antes de continuar
+    if (cartStore.cart.length === 0) {
+      alert('El carrito está vacío. Agrega productos antes de finalizar la compra.');
+      return;
+    }
+
+    const items = cartStore.cart.map((product) => ({
+      nombre: product.nombre,
+      descripcion: product.descripcion,
+      precio: product.precio * 100, // Convertir a centavos
+      quantity: product.quantity,
+    }));
+
+    console.log('Items enviados al backend:', items);
+
+    const response = await fetch('http://localhost:4000/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items }),
+    });
+
+    // Verificar si la respuesta del backend es válida
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error del backend:', errorData);
+      alert(errorData.error || 'Error al procesar el pago.');
+      return;
+    }
+
+    const data = await response.json();
+    console.log('URL recibida de Stripe:', data.url);
+
+    // Redirigir a Stripe Checkout
+    window.location.href = data.url;
+  } catch (error) {
+    console.error('Error durante el checkout:', error);
+    alert('Ocurrió un error al procesar el pago.');
+  }
+};
+
 </script>
 
 <template>
@@ -60,7 +107,7 @@ const total = computed(() => subtotal.value);
         <p>Subtotal: €{{ subtotal.toFixed(2) }}</p>
         <p>Gastos de envío y gestión estimados: Gratuito</p>
         <p><strong>Total: €{{ total.toFixed(2) }}</strong></p>
-        <button class="checkout-button">Finalizar compra</button>
+        <button class="checkout-button" @click="handleCheckout">Finalizar compra</button>
       </div>
     </div>
   </div>
